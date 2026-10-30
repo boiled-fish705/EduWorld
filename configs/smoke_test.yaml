@@ -1,0 +1,36 @@
+# dataset配置
+dataset:
+  name: "mini_test"
+  data_path: "./data/mini_sample.csv"
+  max_seq_len: 50
+  train_val_split: 0.8
+
+# model配置，smoke先用dummy假模型
+model:
+  name: "dummy_kt"
+  embedding_dim: 16
+  hidden_dim: 32
+  num_layers: 1
+  dropout: 0.1
+
+# training训练参数
+training:
+  batch_size: 4
+  epochs: 2
+  learning_rate: 0.001
+  optimizer: "adam"
+
+# 可复现
+reproducibility:
+  seed: 2026
+  device: "cpu"
+
+# rollout配置，给学生C做多步推演
+rollout:
+  horizon: 5
+  mode: "autoregressive"
+
+# 输出路径
+output:
+  exp_name: "smoke_seed2026"
+  base_output_dir: "./outputs"

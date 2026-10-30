@@ -1,0 +1,31 @@
+dataset:
+  name: "mini_test"
+  # data_path暂时可以留着，dummy数据集代码里没读取这个csv
+  data_path: "./data/mini_sample.csv"
+  max_seq_len: 50
+  train_val_split: 0.8
+
+model:
+  name: "dummy_kt"   # 重点！模型名字改成dummy_kt，run.py靠这个选择模型
+  embedding_dim: 16
+  hidden_dim: 32
+  num_layers: 1
+  dropout: 0.1
+
+training:
+  batch_size: 4
+  epochs: 2
+  learning_rate: 0.001
+  optimizer: "adam"
+
+reproducibility:
+  seed: 2026
+  device: "cpu"
+
+rollout:
+  horizon: 5
+  mode: "autoregressive"
+
+output:
+  exp_name: "smoke_kt_seed2026"
+  base_output_dir: "./outputs"

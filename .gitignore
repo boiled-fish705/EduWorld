@@ -1,0 +1,8 @@
+venv/
+.idea/
+outputs/
+__pycache__/
+*.pyc
+logs/
+*.log
+*.zip
