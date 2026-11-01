@@ -1,9 +1,27 @@
+# ===== 虚拟环境（禁止提交，919MB 那个文件夹）=====
 venv/
-.idea/
-outputs/
+env/
+.venv/
+
+# ===== Python 缓存 =====
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+
+# ===== 输出、日志、模型权重 =====
+outputs/
 logs/
 *.log
-*.zip
+*.pth
+*.ckpt
+*.pt
+
+# ===== 本地数据集（不上传 Git，新电脑自行放入）=====
 data/
+EduWorldBench_v1/
+
+# ===== 系统/编辑器杂项 =====
+.DS_Store
+.idea/
+.vscode/
