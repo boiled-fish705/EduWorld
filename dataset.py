@@ -15,7 +15,7 @@ BASE_DIR = Path(__file__).parent.resolve()
 BENCH_DIR = BASE_DIR / "EduWorldBench_v1"
 sys.path.insert(0, str(BASE_DIR))
 
-# 先覆盖苏浩天原来写死的ROOT
+# 覆盖苏浩天原来写死的ROOT
 import EduWorldBench_v1.load_eduworldbench as bench_mod
 bench_mod.ROOT = BENCH_DIR
 bench_mod.PATHS = {
@@ -23,6 +23,13 @@ bench_mod.PATHS = {
     "junyi": bench_mod.ROOT / "junyi" / "interactions_with_splits.parquet",
 }
 
+# 真实action -> 任务规定5大类映射
+ACTION_MAP = {
+    "answer": "Problem",
+    "hint": "Hint",
+    "review": "Review",
+    "explanation": "Explanation",
+}
 
 class SimpleDataset(Dataset):
     def __init__(self, samples):
@@ -32,7 +39,17 @@ class SimpleDataset(Dataset):
         return len(self.samples)
 
     def __getitem__(self, idx):
-        return self.samples[idx]
+        item = self.samples[idx]
+        raw_act = item["action"]
+        # 映射，不在字典里就归为Unknown
+        mapped_act = ACTION_MAP.get(raw_act, "Unknown")
+        return {"action_type": mapped_act}
+
+
+def custom_collate(batch):
+    """自定义collate，只返回action_type列表，规避Timestamp等异常类型"""
+    action_list = [x["action_type"] for x in batch]
+    return {"action_type": action_list}
 
 
 def get_dataloader(data_path: str, batch_size: int, use_dummy: bool = False):
@@ -47,18 +64,18 @@ def get_dataloader(data_path: str, batch_size: int, use_dummy: bool = False):
             {"action_type": "BadType"}
         ] * 10
         dataset = SimpleDataset(dummy_samples)
-        loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+        loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, collate_fn=custom_collate)
         return loader
 
     else:
         print("===== 加载 EduWorldBench_v1 真实数据集 =====")
-        # 示例：加载 junyi，seen_student 的 train 划分，你后面可以改成ednet
         rel = bench_mod.load(dataset="junyi", split_type="seen_student", split="train")
         df = rel.df()
-        # 转成字典列表，对齐我们的接口
+        # 只保留我们需要的action列，减少内存占用
+        df = df[["action"]].copy()
         samples = df.to_dict("records")
         dataset = SimpleDataset(samples)
-        loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+        loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, collate_fn=custom_collate)
         return loader
 
 
